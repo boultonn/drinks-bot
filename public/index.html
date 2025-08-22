@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drink Orders</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍹</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        margin: 0;
+    }
+
+    .container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        transition: transform 0.3s ease;
+    }
+
+    .container:hover {
+        transform: translateY(-5px);
+    }
+
+    .form-container {
+        display: block;
+    }
+
+    .confirmation-container {
+        display: none;
+        text-align: center;
+    }
+
+    h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.5em;
+        font-weight: 300;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+        font-weight: 500;
+        font-size: 1.1em;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    select {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .drink-selection {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        align-items: end;
+    }
+
+    #customDrink {
+        grid-column: span 2;
+        margin-top: 10px;
+    }
+
+    button {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+    }
+
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    button:active {
+        transform: translateY(0);
+    }
+
+    .success-icon {
+        font-size: 4em;
+        color: #4caf50;
+        margin-bottom: 20px;
+    }
+
+    .confirmation-text {
+        color: #333;
+        font-size: 1.2em;
+        margin-bottom: 30px;
+    }
+
+    .order-details {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+    }
+
+    .nav-link {
+        display: inline-block;
+        margin-top: 20px;
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .nav-link:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+
+    .tip-link {
+        display: inline-block;
+        margin-top: 15px;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #4caf50, #45a049);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .tip-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+    }
+
+    @media (max-width: 480px) {
+        .container {
+            padding: 30px 20px;
+        }
+        
+        .drink-selection {
+            grid-template-columns: 1fr;
+        }
+        
+        #customDrink {
+            grid-column: span 1;
+        }
+    }
+</style>
+
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1>🍹 Place Your Order</h1>
+            <form id="orderForm">
+                <div class="form-group">
+                    <label for="name">Your Name:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+
+            <div class="form-group">
+                <label>Choose Your Drink:</label>
+                <div class="drink-selection">
+                    <div>
+                        <select id="drinkSelect" name="drink">
+                            <option value="">Select a drink...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="customDrink" style="font-size: 0.9em;">or request something custom:</label>
+                    </div>
+                    <input type="text" id="customDrink" name="customDrink" placeholder="Custom drink request...">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email (optional - we'll notify you when ready):</label>
+                <input type="email" id="email" name="email" placeholder="your.email@example.com">
+            </div>
+
+            <button type="submit">Submit Order</button>
+        </form>
+        
+        <div style="text-align: center;">
+            <a href="/orders" class="nav-link">View All Orders →</a>
+        </div>
+    </div>
+
+    <div class="confirmation-container" id="confirmationContainer">
+        <div class="success-icon">✅</div>
+        <h1>Order Confirmed!</h1>
+        <div class="confirmation-text">
+            Thank you for your order. It has been submitted successfully.
+        </div>
+        <div class="order-details" id="orderDetails">
+        </div>
+        <button onclick="newOrder()">Place Another Order</button>
+        <div style="text-align: center;">
+            <!-- Replace with custom link e.g. monzo.me -->
+            <a href="https://google.com" class="tip-link" target="_blank">💸 Leave a Tip</a>
+            <br>
+            <a href="/orders" class="nav-link">View All Orders →</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Load available drinks
+    async function loadDrinks() {
+        try {
+            const response = await fetch('/api/drinks');
+            const drinks = await response.json();
+            const select = document.getElementById('drinkSelect');
+            
+            drinks.forEach(drink => {
+                const option = document.createElement('option');
+                option.value = drink;
+                option.textContent = drink;
+                select.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error loading drinks:', error);
+        }
+    }
+
+    // Handle form submission
+    document.getElementById('orderForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const name = document.getElementById('name').value.trim();
+        const selectedDrink = document.getElementById('drinkSelect').value;
+        const customDrink = document.getElementById('customDrink').value.trim();
+        const email = document.getElementById('email').value.trim();
+        
+        if (!name) {
+            alert('Please enter your name');
+            return;
+        }
+        
+        const drink = customDrink || selectedDrink;
+        if (!drink) {
+            alert('Please select or enter a drink');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, drink, email: email || null }),
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                showConfirmation(result.name, result.drink);
+            } else {
+                const error = await response.json();
+                alert('Error: ' + error.error);
+            }
+        } catch (error) {
+            console.error('Error submitting order:', error);
+            alert('Error submitting order. Please try again.');
+        }
+    });
+
+    function showConfirmation(name, drink) {
+        document.querySelector('.form-container').style.display = 'none';
+        document.getElementById('confirmationContainer').style.display = 'block';
+        document.getElementById('orderDetails').innerHTML = `
+            <strong>${name}</strong> ordered: <strong>${drink}</strong>
+        `;
+    }
+
+    function newOrder() {
+        document.querySelector('.form-container').style.display = 'block';
+        document.getElementById('confirmationContainer').style.display = 'none';
+        document.getElementById('orderForm').reset();
+    }
+
+    // Load drinks when page loads
+    loadDrinks();
+</script>
+
+</body>
+</html
