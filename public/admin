@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Portal - Drink Orders</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍹</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.5em;
+        font-weight: 300;
+    }
+
+    .nav-links {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .nav-link {
+        display: inline-block;
+        margin: 0 15px;
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .nav-link:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+
+    .admin-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin-top: 30px;
+    }
+
+    .admin-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .admin-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .admin-card h3 {
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 1.4em;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+        font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    button {
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .danger-btn {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    }
+
+    .danger-btn:hover {
+        box-shadow: 0 4px 8px rgba(238, 90, 82, 0.3);
+    }
+
+    .success-btn {
+        background: linear-gradient(135deg, #4caf50, #45a049);
+    }
+
+    .success-btn:hover {
+        box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .stat-item {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 1.8em;
+        font-weight: bold;
+        color: #667eea;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.9em;
+        margin-top: 5px;
+    }
+
+    .drinks-list {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+
+    .drink-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .drink-item:last-child {
+        border-bottom: none;
+    }
+
+    .remove-btn {
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .ip-list {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+
+    .ip-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        border-bottom: 1px solid #f0f0f0;
+        background: white;
+        border-radius: 6px;
+        margin-bottom: 8px;
+    }
+
+    .ip-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .ip-details {
+        flex-grow: 1;
+    }
+
+    .ip-subnet {
+        font-weight: bold;
+        color: #333;
+        font-family: monospace;
+    }
+
+    .ip-description {
+        font-size: 0.9em;
+        color: #666;
+        margin-top: 2px;
+    }
+
+    .ip-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .toggle-btn {
+        background: #ff9800;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .toggle-btn.enabled {
+        background: #4caf50;
+    }
+
+    .toggle-btn.disabled {
+        background: #9e9e9e;
+    }
+
+    .delete-ip-btn {
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        padding: 6px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .message {
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-weight: 500;
+    }
+
+    .success-message {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f1b0b7;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 20px;
+        }
+        
+        .admin-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .nav-links {
+            margin-bottom: 20px;
+        }
+        
+        .nav-link {
+            display: block;
+            margin: 5px 0;
+        }
+    }
+</style>
+
+</head>
+<body>
+    <div class="container">
+        <h1>🛠️ Support Portal</h1>
+
+    <div class="nav-links">
+        <a href="/" class="nav-link">← Place Order</a>
+        <a href="/orders" class="nav-link">View Orders</a>
+    </div>
+
+    <div class="admin-grid">
+        <!-- Database Stats -->
+        <div class="admin-card">
+            <h3>📊 Database Statistics</h3>
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalOrders">-</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="pendingOrders">-</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="readyOrders">-</div>
+                    <div class="stat-label">Ready</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="completedOrders">-</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            </div>
+            <button onclick="loadStats()" class="success-btn">🔄 Refresh Stats</button>
+        </div>
+
+        <!-- IP Restrictions -->
+        <div class="admin-card">
+            <h3>🛡️ IP Access Control</h3>
+            <div id="ipMessage"></div>
+            
+            <div class="form-group">
+                <label for="newSubnet">Add IP Restriction (CIDR):</label>
+                <input type="text" id="newSubnet" placeholder="e.g. 192.168.1.0/24">
+            </div>
+            <div class="form-group">
+                <label for="subnetDescription">Description:</label>
+                <input type="text" id="subnetDescription" placeholder="e.g. Office network">
+            </div>
+            <button onclick="addIpRestriction()" class="danger-btn">🚫 Add Restriction</button>
+            
+            <div class="form-group" style="margin-top: 25px;">
+                <label>Current IP Restrictions:</label>
+                <div id="ipRestrictionsList">
+                    Loading restrictions...
+                </div>
+            </div>
+            <button onclick="loadIpRestrictions()" class="success-btn">🔄 Refresh List</button>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px; border: 1px solid #bbdefb;">
+                <strong>ℹ️ Info:</strong> IP restrictions block access to the entire app. Use CIDR notation (e.g., 192.168.1.0/24 for a subnet or 192.168.1.100/32 for a single IP).
+            </div>
+        </div>
+
+        <!-- Database Cleanup -->
+        <div class="admin-card">
+            <h3>🗑️ Database Cleanup</h3>
+            <div id="cleanupMessage"></div>
+            
+            <div class="form-group">
+                <label for="specificIds">Delete Specific Order IDs:</label>
+                <input type="text" id="specificIds" placeholder="e.g. 53,54,55,56,57,58,59">
+                <small style="color: #666; font-size: 0.9em;">Enter comma-separated order IDs</small>
+            </div>
+            <button onclick="deleteSpecificOrders()" class="danger-btn">🗑️ Delete Specific Orders</button>
+            
+            <hr style="margin: 30px 0; border: 1px solid #e0e0e0;">
+            
+            <div class="form-group">
+                <label for="purgeDays">Delete orders older than:</label>
+                <select id="purgeDays">
+                    <option value="7">7 days</option>
+                    <option value="14">14 days</option>
+                    <option value="30">30 days</option>
+                    <option value="60">60 days</option>
+                    <option value="90">90 days</option>
+                </select>
+            </div>
+            <button onclick="purgeOrders()" class="danger-btn">🗑️ Purge Old Orders</button>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; border: 1px solid #ffeaa7;">
+                <strong>⚠️ Warning:</strong> These actions cannot be undone. Please make sure you want to permanently delete the specified orders.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Load initial data
+    loadStats();
+    loadIpRestrictions();
+
+    // Statistics functions
+    async function loadStats() {
+        try {
+            const response = await fetch('/api/admin/stats');
+            const stats = await response.json();
+            
+            document.getElementById('totalOrders').textContent = stats.total;
+            document.getElementById('pendingOrders').textContent = stats.pending;
+            document.getElementById('readyOrders').textContent = stats.ready;
+            document.getElementById('completedOrders').textContent = stats.completed;
+        } catch (error) {
+            console.error('Error loading stats:', error);
+        }
+    }
+
+    // IP Restrictions functions
+    async function loadIpRestrictions() {
+        try {
+            const response = await fetch('/api/admin/ip-restrictions');
+            const restrictions = await response.json();
+            
+            const ipList = document.getElementById('ipRestrictionsList');
+            if (restrictions.length === 0) {
+                ipList.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No IP restrictions configured</div>';
+                return;
+            }
+            
+            ipList.innerHTML = `<div class="ip-list">${restrictions.map(restriction => `
+                <div class="ip-item">
+                    <div class="ip-details">
+                        <div class="ip-subnet">${restriction.subnet}</div>
+                        <div class="ip-description">${restriction.description || 'No description'}</div>
+                    </div>
+                    <div class="ip-actions">
+                        <span class="ip-status ${restriction.enabled ? 'ip-enabled' : 'ip-disabled'}">
+                            ${restriction.enabled ? 'ACTIVE' : 'DISABLED'}
+                        </span>
+                        <button class="toggle-btn ${restriction.enabled ? 'enabled' : 'disabled'}" 
+                                onclick="toggleIpRestriction(${restriction.id})">
+                            ${restriction.enabled ? 'Disable' : 'Enable'}
+                        </button>
+                        <button class="delete-ip-btn" onclick="deleteIpRestriction(${restriction.id}, '${restriction.subnet}')">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+            `).join('')}</div>`;
+        } catch (error) {
+            console.error('Error loading IP restrictions:', error);
+            showMessage('ipMessage', 'Error loading IP restrictions', 'error');
+        }
+    }
+
+    async function addIpRestriction() {
+        const subnet = document.getElementById('newSubnet').value.trim();
+        const description = document.getElementById('subnetDescription').value.trim();
+        
+        if (!subnet) {
+            showMessage('ipMessage', 'Please enter a subnet in CIDR notation', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/admin/ip-restrictions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ subnet, description }),
+            });
+
+            const result = await response.json();
+            
+            if (response.ok) {
+                showMessage('ipMessage', result.message, 'success');
+                document.getElementById('newSubnet').value = '';
+                document.getElementById('subnetDescription').value = '';
+                loadIpRestrictions();
+            } else {
+                showMessage('ipMessage', result.error, 'error');
+            }
+        } catch (error) {
+            console.error('Error adding IP restriction:', error);
+            showMessage('ipMessage', 'Error adding IP restriction', 'error');
+        }
+    }
+
+    async function toggleIpRestriction(id) {
+        try {
+            const response = await fetch(`/api/admin/ip-restrictions/${id}/toggle`, {
+                method: 'PUT',
+            });
+
+            const result = await response.json();
+            
+            if (response.ok) {
+                showMessage('ipMessage', result.message, 'success');
+                loadIpRestrictions();
+            } else {
+                showMessage('ipMessage', result.error, 'error');
+            }
+        } catch (error) {
+            console.error('Error toggling IP restriction:', error);
+            showMessage('ipMessage', 'Error toggling IP restriction', 'error');
+        }
+    }
+
+    async function deleteIpRestriction(id, subnet) {
+        if (!confirm(`Are you sure you want to delete the IP restriction for ${subnet}?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/admin/ip-restrictions/${id}`, {
+                method: 'DELETE',
+            });
+
+            const result = await response.json();
+            
+            if (response.ok) {
+                showMessage('ipMessage', result.message, 'success');
+                loadIpRestrictions();
+            } else {
+                showMessage('ipMessage', result.error, 'error');
+            }
+        } catch (error) {
+            console.error('Error deleting IP restriction:', error);
+            showMessage('ipMessage', 'Error deleting IP restriction', 'error');
+        }
+    }
+
+    // Database cleanup functions
+    async function deleteSpecificOrders() {
+        const idsInput = document.getElementById('specificIds').value.trim();
+        
+        if (!idsInput) {
+            showMessage('cleanupMessage', 'Please enter order IDs to delete', 'error');
+            return;
+        }
+
+        // Parse comma-separated IDs
+        const orderIds = idsInput.split(',').map(id => {
+            const num = parseInt(id.trim());
+            return isNaN(num) ? null : num;
+        }).filter(id => id !== null);
+
+        if (orderIds.length === 0) {
+            showMessage('cleanupMessage', 'Please enter valid order IDs (numbers only)', 'error');
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to permanently delete orders with IDs: ${orderIds.join(', ')}? This action cannot be undone.`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/admin/orders/specific', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ orderIds }),
+            });
+
+            const result = await response.json();
+            
+            if (response.ok) {
+                showMessage('cleanupMessage', result.message, 'success');
+                document.getElementById('specificIds').value = '';
+                loadStats();
+            } else {
+                showMessage('cleanupMessage', result.error, 'error');
+            }
+        } catch (error) {
+            console.error('Error deleting specific orders:', error);
+            showMessage('cleanupMessage', 'Error deleting orders', 'error');
+        }
+    }
+
+    async function purgeOrders() {
+        const days = document.getElementById('purgeDays').value;
+        
+        if (!confirm(`Are you sure you want to permanently delete all orders older than ${days} days? This action cannot be undone.`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/admin/orders/purge', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ days: parseInt(days) }),
+            });
+
+            const result = await response.json();
+            
+            if (response.ok) {
+                showMessage('cleanupMessage', result.message, 'success');
+                loadStats();
+            } else {
+                showMessage('cleanupMessage', result.error, 'error');
+            }
+        } catch (error) {
+            console.error('Error purging orders:', error);
+            showMessage('cleanupMessage', 'Error purging orders', 'error');
+        }
+    }
+
+    // Utility functions
+    function showMessage(elementId, message, type) {
+        const messageEl = document.getElementById(elementId);
+        messageEl.innerHTML = `<div class="${type}-message">${message}</div>`;
+        setTimeout(() => {
+            messageEl.innerHTML = '';
+        }, 5000);
+    }
+</script>
+
+</body>
+</html>
