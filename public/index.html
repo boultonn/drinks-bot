@@ -1,330 +1,476 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drink Orders</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍹</text></svg>">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Your Drink - Drinks Bot</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍹</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        margin: 0;
+    :root {
+      --bg:           #0d0d0f;
+      --surface:      #15151a;
+      --surface-2:    #1c1c23;
+      --border:       #2a2a35;
+      --border-light: #3a3a48;
+      --gold:         #c9903a;
+      --gold-light:   #e8b96a;
+      --amber:        #f0c97a;
+      --gold-dim:     rgba(201,144,58,0.15);
+      --success:      #3ecf8e;
+      --success-dim:  rgba(62,207,142,0.15);
+      --text:         #e8e4dc;
+      --text-muted:   #7a7870;
+      --text-dim:     #4a4845;
+      --shadow:       rgba(0,0,0,0.5);
     }
 
-    .container {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        padding: 40px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        max-width: 500px;
-        margin: 0 auto;
-        transition: transform 0.3s ease;
+    html, body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
     }
 
-    .container:hover {
-        transform: translateY(-5px);
+    body { overflow-x: hidden; }
+
+    #bubbles { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.35; pointer-events: none; z-index: 1;
     }
 
-    .form-container {
-        display: block;
+    body::after {
+      content: ''; position: fixed; inset: 0;
+      background: radial-gradient(ellipse 60% 50% at 50% 60%, rgba(201,144,58,0.06) 0%, transparent 70%);
+      pointer-events: none; z-index: 1;
     }
 
-    .confirmation-container {
-        display: none;
-        text-align: center;
+    /* festive override */
+    body.festive { background: linear-gradient(135deg, #0a0f0a 0%, #0f0a0d 100%); }
+    body.festive::after { background: radial-gradient(ellipse 60% 50% at 50% 60%, rgba(180,30,30,0.08) 0%, transparent 70%); }
+
+    .page-wrap {
+      position: relative; z-index: 2;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 40px 20px;
     }
+
+    /* ── CARD ── */
+    .card {
+      background: rgba(21,21,26,0.8);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: clamp(2rem, 6vw, 3.5rem) clamp(1.5rem, 6vw, 3rem);
+      width: 100%;
+      max-width: 460px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 0 0 1px rgba(201,144,58,0.06), 0 32px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04);
+      animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── HEADER ── */
+    .header { text-align: center; margin-bottom: 2rem; }
+
+    .logo-wrap {
+      width: 64px; height: 64px;
+      margin: 0 auto 1.25rem;
+      background: var(--gold-dim);
+      border: 1px solid rgba(201,144,58,0.3);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold-light);
+    }
+    .logo-wrap svg { width: 30px; height: 30px; }
 
     h1 {
-        color: #333;
-        text-align: center;
-        margin-bottom: 30px;
-        font-size: 2.5em;
-        font-weight: 300;
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.6rem, 4vw, 2rem);
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.4rem;
     }
 
-    .form-group {
-        margin-bottom: 25px;
+    .subtitle { color: var(--text-muted); font-size: 0.9rem; font-weight: 300; }
+
+    .divider {
+      width: 36px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 1rem auto 0;
     }
+
+    /* ── SCREENS ── */
+    .user-setup-container, .form-container, .confirmation-container { display: none; }
+    .user-setup-container.active, .form-container.active, .confirmation-container.active { display: block; }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom: 1.25rem; }
 
     label {
-        display: block;
-        margin-bottom: 8px;
-        color: #555;
-        font-weight: 500;
-        font-size: 1.1em;
+      display: block; margin-bottom: 6px;
+      color: var(--text-muted);
+      font-size: 0.78rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
     }
 
-    input[type="text"],
-    input[type="email"],
-    select {
-        width: 100%;
-        padding: 15px;
-        border: 2px solid #e0e0e0;
-        border-radius: 10px;
-        font-size: 16px;
-        transition: all 0.3s ease;
-        background: white;
+    input[type="text"], input[type="email"], select {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
     }
 
-    input[type="text"]:focus,
-    input[type="email"]:focus,
-    select:focus {
-        outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,144,58,0.12);
     }
 
-    .drink-selection {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-        align-items: end;
+    input::placeholder { color: var(--text-dim); }
+
+    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a7870' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px; }
+    select option { background: #1c1c23; color: var(--text); }
+
+    small { color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 5px; }
+
+    .custom-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; margin: 10px 0 6px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .validation-hint {
+      display: none;
+      color: var(--amber);
+      font-size: 0.82rem;
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: rgba(240,201,122,0.08);
+      border-radius: 8px;
+      border-left: 3px solid var(--amber);
     }
 
-    #customDrink {
-        grid-column: span 2;
-        margin-top: 10px;
-    }
-
+    /* ── BUTTONS ── */
     button {
-        width: 100%;
-        padding: 15px;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-size: 18px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 20px;
+      width: 100%;
+      padding: 14px;
+      border: none; border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
     }
 
-    button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold), #a8712a);
+      color: #0d0d0f;
+      box-shadow: 0 4px 20px rgba(201,144,58,0.3), inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+    .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 8px 30px rgba(201,144,58,0.4); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--border-light); color: var(--text); background: rgba(255,255,255,0.03); transform: translateY(0); }
+
+    .btn-ghost {
+      width: auto; display: block; margin: 1.5rem auto 0;
+      padding: 10px 24px;
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.78rem;
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--border-light); transform: none; }
+
+    /* ── USER BADGE ── */
+    .user-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(201,144,58,0.25);
+      color: var(--gold-light);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.82rem; font-weight: 500;
+      margin-bottom: 1.5rem;
     }
 
-    button:active {
-        transform: translateY(0);
-    }
+    /* ── CONFIRMATION ── */
+    .confirmation-container { text-align: center; }
 
     .success-icon {
-        font-size: 4em;
-        color: #4caf50;
-        margin-bottom: 20px;
+      width: 64px; height: 64px;
+      margin: 0 auto 1.25rem;
+      background: var(--success-dim);
+      border: 1px solid rgba(62,207,142,0.3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--success);
+      animation: scaleIn 0.5s cubic-bezier(0.16,1,0.3,1);
     }
+    .success-icon svg { width: 28px; height: 28px; }
 
-    .confirmation-text {
-        color: #333;
-        font-size: 1.2em;
-        margin-bottom: 30px;
-    }
+    @keyframes scaleIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
     .order-details {
-        background: #f8f9fa;
-        padding: 20px;
-        border-radius: 10px;
-        margin: 20px 0;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      padding: 20px;
+      border-radius: 12px;
+      margin: 1.25rem 0;
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: var(--text-muted);
     }
+    .order-details strong { color: var(--gold-light); font-weight: 600; }
 
-    .nav-link {
-        display: inline-block;
-        margin-top: 20px;
-        color: #667eea;
-        text-decoration: none;
-        font-weight: 500;
-        transition: color 0.3s ease;
-    }
+    .action-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 1.25rem; }
 
-    .nav-link:hover {
-        color: #764ba2;
-        text-decoration: underline;
-    }
-
-    .tip-link {
-        display: inline-block;
-        margin-top: 15px;
-        padding: 12px 24px;
-        background: linear-gradient(135deg, #4caf50, #45a049);
-        color: white;
-        text-decoration: none;
-        border-radius: 8px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-
-    .tip-link:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
-    }
-
+    /* ── MOBILE ── */
     @media (max-width: 480px) {
-        .container {
-            padding: 30px 20px;
-        }
-        
-        .drink-selection {
-            grid-template-columns: 1fr;
-        }
-        
-        #customDrink {
-            grid-column: span 1;
-        }
+      .card { padding: 2rem 1.25rem; }
+      h1 { font-size: 1.5rem; }
     }
-</style>
-
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="form-container">
-            <h1>🍹 Place Your Order</h1>
-            <form id="orderForm">
-                <div class="form-group">
-                    <label for="name">Your Name:</label>
-                    <input type="text" id="name" name="name" required>
-                </div>
+  <canvas id="bubbles"></canvas>
 
-            <div class="form-group">
-                <label>Choose Your Drink:</label>
-                <div class="drink-selection">
-                    <div>
-                        <select id="drinkSelect" name="drink">
-                            <option value="">Select a drink...</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="customDrink" style="font-size: 0.9em;">or request something custom:</label>
-                    </div>
-                    <input type="text" id="customDrink" name="customDrink" placeholder="Custom drink request...">
-                </div>
-            </div>
+  <div class="page-wrap">
+    <div class="card">
 
-            <div class="form-group">
-                <label for="email">Email (optional - we'll notify you when ready):</label>
-                <input type="email" id="email" name="email" placeholder="your.email@example.com">
-            </div>
-
-            <button type="submit">Submit Order</button>
+      <!-- User Setup Screen -->
+      <div class="user-setup-container" id="userSetupContainer">
+        <div class="header">
+          <div class="logo-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 22h8M12 16v6M5 3l7 9 7-9H5z"/><path d="M5 3h14"/><path d="M9 10.5c1 1 3 1 4 0"/>
+            </svg>
+          </div>
+          <h1>Welcome!</h1>
+          <p class="subtitle">We'll remember you for 7 days</p>
+          <div class="divider"></div>
+        </div>
+        <form id="userSetupForm">
+          <div class="form-group">
+            <label for="setupName">Your Name</label>
+            <input type="text" id="setupName" name="setupName" required placeholder="Enter your name">
+          </div>
+          <div class="form-group">
+            <label for="setupEmail">Email <span style="opacity:0.5;font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+            <input type="email" id="setupEmail" name="setupEmail" placeholder="your.email@example.com">
+            <small>We'll notify you when your drink is ready</small>
+          </div>
+          <button type="submit" class="btn-primary">Continue to Order</button>
         </form>
-        
-        <div style="text-align: center;">
-            <a href="/orders" class="nav-link">View All Orders →</a>
-        </div>
-    </div>
+      </div>
 
-    <div class="confirmation-container" id="confirmationContainer">
-        <div class="success-icon">✅</div>
-        <h1>Order Confirmed!</h1>
-        <div class="confirmation-text">
-            Thank you for your order. It has been submitted successfully.
+      <!-- Order Form Screen -->
+      <div class="form-container" id="formContainer">
+        <div class="header">
+          <div class="logo-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 22h8M12 16v6M5 3l7 9 7-9H5z"/><path d="M5 3h14"/><path d="M9 10.5c1 1 3 1 4 0"/>
+            </svg>
+          </div>
+          <h1>Place Your Order</h1>
+          <span class="user-badge" id="displayName"></span>
         </div>
-        <div class="order-details" id="orderDetails">
-        </div>
-        <button onclick="newOrder()">Place Another Order</button>
-        <div style="text-align: center;">
-            <!-- Replace with custom link e.g. monzo.me -->
-            <a href="https://google.com" class="tip-link" target="_blank">💸 Leave a Tip</a>
-            <br>
-            <a href="/orders" class="nav-link">View All Orders →</a>
-        </div>
-    </div>
-</div>
+        <form id="orderForm">
+          <input type="hidden" id="name" name="name">
+          <input type="hidden" id="email" name="email">
+          <div class="form-group">
+            <label>Choose Your Drink</label>
+            <select id="drinkSelect" name="drink">
+              <option value="">Select a drink...</option>
+            </select>
+            <div class="custom-label">or request something custom:</div>
+            <input type="text" id="customDrink" name="customDrink" placeholder="Custom drink request...">
+            <div id="drinkValidationHint" class="validation-hint">
+              ℹ️ Both selected — only the custom request will be used.
+            </div>
+          </div>
+          <button type="submit" class="btn-primary">Submit Order</button>
+        </form>
+        <button class="btn-ghost" onclick="clearUserSession()">Different User</button>
+      </div>
 
-<script>
-    // Load available drinks
-    async function loadDrinks() {
-        try {
-            const response = await fetch('/api/drinks');
-            const drinks = await response.json();
-            const select = document.getElementById('drinkSelect');
-            
-            drinks.forEach(drink => {
-                const option = document.createElement('option');
-                option.value = drink;
-                option.textContent = drink;
-                select.appendChild(option);
-            });
-        } catch (error) {
-            console.error('Error loading drinks:', error);
-        }
+      <!-- Confirmation Screen -->
+      <div class="confirmation-container" id="confirmationContainer">
+        <div class="success-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <h1>Order Placed!</h1>
+        <div class="order-details" id="orderDetails"></div>
+        <div class="action-buttons">
+          <button onclick="newOrder()" class="btn-primary">Place Another Order</button>
+        </div>
+        <button class="btn-ghost" onclick="clearUserSession()">Different User</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ── Bubbles ──────────────────────────────────────────────
+    const canvas = document.getElementById('bubbles');
+    const ctx = canvas.getContext('2d');
+    function resizeBubbles() { canvas.width = innerWidth; canvas.height = innerHeight; }
+    resizeBubbles();
+    window.addEventListener('resize', resizeBubbles);
+    const bubbles = Array.from({length: 28}, () => spawnBubble(true));
+    function spawnBubble(init = false) {
+      return { x: Math.random() * innerWidth, y: init ? Math.random() * innerHeight : innerHeight + 10,
+               r: 1.5 + Math.random() * 3.5, speed: 0.3 + Math.random() * 0.6,
+               drift: (Math.random() - 0.5) * 0.25, opacity: 0.06 + Math.random() * 0.1 };
+    }
+    function tickBubbles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const b of bubbles) {
+        b.y -= b.speed; b.x += b.drift;
+        if (b.y + b.r < 0) Object.assign(b, spawnBubble());
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(201,144,58,${b.opacity})`; ctx.lineWidth = 1; ctx.stroke();
+      }
+      requestAnimationFrame(tickBubbles);
+    }
+    tickBubbles();
+
+    // ── Session ──────────────────────────────────────────────
+    const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000;
+    let currentUser = null;
+
+    function getUserSession() {
+      const d = localStorage.getItem('drinkBotUser');
+      if (!d) return null;
+      const s = JSON.parse(d);
+      if (Date.now() > s.expiry) { localStorage.removeItem('drinkBotUser'); return null; }
+      return s;
+    }
+    function saveUserSession(name, email) {
+      const s = { name, email, expiry: Date.now() + SESSION_DURATION };
+      localStorage.setItem('drinkBotUser', JSON.stringify(s));
+      currentUser = s;
+    }
+    function clearUserSession() { localStorage.removeItem('drinkBotUser'); currentUser = null; location.reload(); }
+
+    function initializeApp() {
+      const s = getUserSession();
+      if (s) { currentUser = s; showOrderForm(); } else { showUserSetup(); }
     }
 
-    // Handle form submission
-    document.getElementById('orderForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const name = document.getElementById('name').value.trim();
-        const selectedDrink = document.getElementById('drinkSelect').value;
-        const customDrink = document.getElementById('customDrink').value.trim();
-        const email = document.getElementById('email').value.trim();
-        
-        if (!name) {
-            alert('Please enter your name');
-            return;
-        }
-        
-        const drink = customDrink || selectedDrink;
-        if (!drink) {
-            alert('Please select or enter a drink');
-            return;
-        }
+    function showUserSetup() {
+      document.getElementById('userSetupContainer').classList.add('active');
+      document.getElementById('formContainer').classList.remove('active');
+      document.getElementById('confirmationContainer').classList.remove('active');
+    }
+    function showOrderForm() {
+      document.getElementById('userSetupContainer').classList.remove('active');
+      document.getElementById('formContainer').classList.add('active');
+      document.getElementById('confirmationContainer').classList.remove('active');
+      document.getElementById('name').value = currentUser.name;
+      document.getElementById('email').value = currentUser.email || '';
+      document.getElementById('displayName').textContent = currentUser.name;
+    }
 
-        try {
-            const response = await fetch('/api/orders', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ name, drink, email: email || null }),
-            });
+    document.getElementById('userSetupForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const name = document.getElementById('setupName').value.trim();
+      const email = document.getElementById('setupEmail').value.trim();
+      if (!name) { alert('Please enter your name'); return; }
+      saveUserSession(name, email);
+      showOrderForm();
+    });
 
-            if (response.ok) {
-                const result = await response.json();
-                showConfirmation(result.name, result.drink);
-            } else {
-                const error = await response.json();
-                alert('Error: ' + error.error);
-            }
-        } catch (error) {
-            console.error('Error submitting order:', error);
-            alert('Error submitting order. Please try again.');
+    async function loadTheme() {
+      try {
+        const r = await fetch('/api/settings');
+        const s = await r.json();
+        if (s.festive_theme === 'true') document.body.classList.add('festive');
+      } catch(e) {}
+    }
+
+    async function loadDrinks() {
+      try {
+        const r = await fetch('/api/drinks');
+        const drinks = await r.json();
+        const sel = document.getElementById('drinkSelect');
+        drinks.forEach(d => { const o = document.createElement('option'); o.value = d; o.textContent = d; sel.appendChild(o); });
+      } catch(e) {}
+    }
+
+    document.getElementById('orderForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const selected = document.getElementById('drinkSelect').value;
+      const custom = document.getElementById('customDrink').value.trim();
+      const drink = custom || selected;
+      if (!drink) { alert('Please select or enter a drink'); return; }
+      try {
+        const r = await fetch('/api/orders', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ name, drink, email: email || null })
+        });
+        if (r.ok) {
+          const res = await r.json();
+          showConfirmation(res.name, res.drink);
+        } else {
+          const err = await r.json();
+          alert('Error: ' + err.error);
         }
+      } catch(e) { alert('Error submitting order. Please try again.'); }
     });
 
     function showConfirmation(name, drink) {
-        document.querySelector('.form-container').style.display = 'none';
-        document.getElementById('confirmationContainer').style.display = 'block';
-        document.getElementById('orderDetails').innerHTML = `
-            <strong>${name}</strong> ordered: <strong>${drink}</strong>
-        `;
+      document.getElementById('userSetupContainer').classList.remove('active');
+      document.getElementById('formContainer').classList.remove('active');
+      document.getElementById('confirmationContainer').classList.add('active');
+      document.getElementById('orderDetails').innerHTML = `<strong>${name}</strong> ordered: <strong>${drink}</strong>`;
     }
 
     function newOrder() {
-        document.querySelector('.form-container').style.display = 'block';
-        document.getElementById('confirmationContainer').style.display = 'none';
-        document.getElementById('orderForm').reset();
+      showOrderForm();
+      document.getElementById('orderForm').reset();
+      document.getElementById('name').value = currentUser.name;
+      document.getElementById('email').value = currentUser.email || '';
     }
 
-    // Load drinks when page loads
-    loadDrinks();
-</script>
+    const drinkSel = document.getElementById('drinkSelect');
+    const customIn = document.getElementById('customDrink');
+    const hint = document.getElementById('drinkValidationHint');
+    function checkConflict() { hint.style.display = (drinkSel.value && customIn.value.trim()) ? 'block' : 'none'; }
+    drinkSel.addEventListener('change', checkConflict);
+    customIn.addEventListener('input', checkConflict);
 
+    loadTheme();
+    loadDrinks();
+    initializeApp();
+  </script>
 </body>
-</html
+</html>
